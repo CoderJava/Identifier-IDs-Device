@@ -34,27 +34,42 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 getInfoPhoneState()
             }
             R.id.button_simcard_activity_main -> {
-                // TODO: do something in here
+                getSimCard()
             }
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getSimCard() {
+        val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        val strPhoneNumber = telephonyManager.line1Number
+        val operatorName = telephonyManager.networkOperatorName
+        val result = StringBuilder()
+        result.append("Phone Number: $strPhoneNumber\n")
+            .append("Operator Name: $operatorName\n")
+        text_view_result_activity_main.text = result.toString()
     }
 
     @SuppressLint("MissingPermission")
     private fun getInfoPhoneState() {
         val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
         var isSupportedMultipleSim = false
-        var strImeiSim1 = ""
+        val strImeiSim1: String
         var strImeiSim2 = ""
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            isSupportedMultipleSim = true
-            strImeiSim1 = telephonyManager.getImei(0)
-            strImeiSim2 = telephonyManager.getImei(1)
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            isSupportedMultipleSim = true
-            strImeiSim1 = telephonyManager.getDeviceId(0)
-            strImeiSim2 = telephonyManager.getDeviceId(1)
-        } else {
-            strImeiSim1 = telephonyManager.deviceId
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
+                isSupportedMultipleSim = true
+                strImeiSim1 = telephonyManager.getImei(0)
+                strImeiSim2 = telephonyManager.getImei(1)
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
+                isSupportedMultipleSim = true
+                strImeiSim1 = telephonyManager.getDeviceId(0)
+                strImeiSim2 = telephonyManager.getDeviceId(1)
+            }
+            else -> {
+                strImeiSim1 = telephonyManager.deviceId
+            }
         }
         val result = StringBuilder()
         if (isSupportedMultipleSim) {
